@@ -1,43 +1,47 @@
-
+import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import control
+from scipy import signal
 
-mine (void){
-num = [100]
-den = [1, 5, 6]  # (s+2)(s+3) = s^2 + 5s + 6
-G = control.TransferFunction(num, den)
+def main():
+    st.title('202221006 신원준')
+    st.title('전달함수 분석')
+    # 전달함수 계수
+    num = [100]
+    den = [1, 5, 6]
 
-Gc = G * 1
+    # 폐루프 전달함수 계산
+    G = signal.TransferFunction(num, den)
 
-t = np.linspace(0, 10, 1000)
+    # unit step 입력에 대한 응답곡선 계산
+    t, y = signal.step(G)
 
-u = np.ones_like(t)
+    # 주파수 응답 계산
+    w, mag, phase = signal.bode(G)
 
-t, y = control.step_response(Gc, T=t, input=u)
+    # 그래프 그리기
+    fig, axs = plt.subplots(3, 1, figsize=(8, 10))
+    fig.suptitle('System Response')
 
-plt.plot(t, y)
-plt.xlabel('Time')
-plt.ylabel('Output')
-plt.title('Step Response')
-plt.grid(True)
-plt.show()
+    # 응답곡선 그래프
+    axs[0].plot(t, y)
+    axs[0].set_xlabel('Time')
+    axs[0].set_ylabel('Output')
+    axs[0].set_title('Step Response')
 
-omega, mag, phase = control.bode(Gc)
+    # 주파수 응답 그래프
+    axs[1].semilogx(w, mag)
+    axs[1].set_xlabel('Frequency')
+    axs[1].set_ylabel('Magnitude')
+    axs[1].set_title('Bode Plot (Magnitude)')
 
-plt.figure()
-plt.semilogx(omega, mag)
-plt.xlabel('Frequency (rad/s)')
-plt.ylabel('Magnitude (dB)')
-plt.title('Frequency Response')
-plt.grid(True)
+    axs[2].semilogx(w, phase)
+    axs[2].set_xlabel('Frequency')
+    axs[2].set_ylabel('Phase')
+    axs[2].set_title('Bode Plot (Phase)')
 
-plt.figure()
-plt.semilogx(omega, phase)
-plt.xlabel('Frequency (rad/s)')
-plt.ylabel('Phase (degrees)')
-plt.title('Phase Response')
-plt.grid(True)
+    # 그래프 출력
+    st.pyplot(fig)
 
-plt.show()
-}
+if __name__ == "__main__":
+    main()
